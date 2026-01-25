@@ -1,0 +1,157 @@
+CLIPPY - VIDEO TO AUDIO CONVERTER - USER GUIDE
+=====================================
+
+QUICK START
+-----------
+
+1. INSTALL DEPENDENCIES
+   ---------------------
+   Ubuntu/Debian:
+   sudo apt update
+   sudo apt install ffmpeg
+   pip install ffmpeg-python
+
+   macOS:
+   brew install ffmpeg
+   pip install ffmpeg-python
+
+   Windows:
+   - Download FFmpeg from https://ffmpeg.org/download.html
+   - Add FFmpeg to your system PATH
+   - pip install ffmpeg-python
+
+2. PREPARE YOUR VIDEO FILE
+   ------------------------
+   Place your video file in any directory
+   Supported formats: .mp4, .mkv, .avi, .mov, .wmv, .flv, .webm, .m4v, .mpg, .mpeg, .3gp, .f4v
+
+3. RUN THE CONVERTER
+   ------------------
+   Basic usage:
+   python main.py -i your_video.mp4
+
+   This will create your_video.mp3 in the same directory
+
+
+DETAILED USAGE EXAMPLES
+-----------------------
+
+Example 1: Convert MP4 to MP3 (default)
+python main.py -i video.mp4
+Output: video.mp3
+
+Example 2: Convert to WAV format
+python main.py -i video.mp4 -f wav
+Output: video.wav
+
+Example 3: Specify custom output filename
+python main.py -i video.mp4 -o my_audio.wav
+Output: my_audio.wav
+
+Example 4: Convert MKV to MP3 with custom name
+python main.py -i movie.mkv -o soundtrack.mp3 -f mp3
+Output: soundtrack.mp3
+
+COMMAND LINE OPTIONS
+--------------------
+
+-i, --input    [REQUIRED] Path to input video file
+-o, --output   [OPTIONAL] Custom output filename
+-f, --format   [OPTIONAL] Output format: mp3 or wav (default: mp3)
+
+
+TROUBLESHOOTING
+---------------
+
+PROBLEM: "ffmpeg is not installed"
+SOLUTION: Install FFmpeg using the commands above for your OS
+
+PROBLEM: "Video file does not exist"
+SOLUTION: Check the file path and make sure the video file exists
+
+PROBLEM: "Permission denied"
+SOLUTION: Make sure you have write permissions in the output directory
+
+PROBLEM: "Unsupported file extension"
+SOLUTION: The tool will warn but may still work. Try converting anyway.
+
+
+TECHNICAL DETAILS
+-----------------
+
+How it works:
+1. Validates the input video file exists
+2. Checks FFmpeg is installed
+3. Determines output filename/location
+4. Extracts audio using FFmpeg
+5. Reports success or error
+
+Supported audio formats:
+- MP3 (default, compressed, smaller file size)
+- WAV (uncompressed, higher quality, larger file size)
+
+Quality settings:
+- MP3: Standard quality encoding
+- WAV: CD-quality 16-bit PCM audio
+
+
+PYTHON LIBRARY USAGE
+--------------------
+
+Import and use in your Python scripts:
+
+from clippy import get_audio_from_video
+
+# Basic conversion
+success = get_audio_from_video("video.mp4")
+
+# With custom output
+success = get_audio_from_video("video.mp4", "audio.wav")
+
+# Specify format
+success = get_audio_from_video("video.mp4", audio_format="wav")
+
+
+FILE STRUCTURE
+--------------
+
+clippy/
+├── main.py                 # Main entry point
+├── guide.txt              # This guide
+├── README.md              # Detailed documentation
+└── clippy/          # Main package
+    ├── __init__.py
+    └── src/
+        ├── cli/
+        │   └── interface.py
+        ├── core/
+        │   └── audio_extractor.py
+        └── utils/
+            └── validation.py
+
+
+COMMON USE CASES
+----------------
+
+1. Extract audio for podcast editing
+2. Create music from video content
+3. Convert lecture videos to audio files
+4. Extract soundtracks from movies
+5. Prepare audio files for transcription
+
+
+TIPS
+----
+
+• The converter preserves original audio quality
+• MP3 files are smaller and good for most uses
+• WAV files are larger but maintain perfect quality
+• Output files are created in the same directory as input unless specified
+• The tool works with large video files efficiently
+
+
+VERSION INFO
+------------
+
+Current version: 1.0.0
+Requires: Python 3.6+, FFmpeg, ffmpeg-python package
