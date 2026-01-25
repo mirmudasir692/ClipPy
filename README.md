@@ -87,7 +87,7 @@ python main.py -i input_video.avi -o output_audio.mp3 -f mp3
 ### Method 2: As a Python Library
 
 ```python
-from video2audio import get_audio_from_video
+from clippy import get_audio_from_video
 
 # Basic usage
 success = get_audio_from_video("video.mp4")
@@ -105,7 +105,7 @@ success = get_audio_from_video("video.mp4", audio_format="wav")
 video_to_audio/
 ├── main.py                     # Entry point for CLI usage
 ├── README.md                   # This file
-└── video2audio/               # Main package
+└── clippy/               # Main package
     ├── __init__.py            # Package exports
     └── src/                   # Source code
         ├── __init__.py
