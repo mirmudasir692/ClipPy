@@ -4,6 +4,71 @@ import os
 from typing import Optional, Any
 from pathlib import Path
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+bitrate_map = {
+    240: "400k",
+    360: "600k",
+    480: "1000k",
+    720: "2500k",
+    1080: "5000k",
+    1440: "10000k",
+    2160: "20000k"
+}
+
+def get_preset_for_resolution(res):
+    res = int(res)
+    if res <= 360:
+        return "veryfast"
+    if res <= 480:
+        return "fast"
+    return "medium"
+def process_single_resolution(input_file, res, output_dir, encoder="libx264"):
+    res_int = int(str(res).replace("p", ""))
+    bitrate = bitrate_map.get(res_int, "1500k")
+    preset = get_preset_for_resolution(res_int)
+    
+    filename = os.path.splitext(os.path.basename(input_file))[0]
+    output_path = os.path.join(output_dir, f"{filename}_{res_int}p.mp4")
+    
+    command = [
+        "ffmpeg",
+        "-y",
+        "-i", input_file,
+        "-map", "0:v:0",
+        "-map", "0:a:0?",
+        "-vf", f"scale=-2:{res_int}",
+        "-c:v", encoder,
+        "-preset", preset,
+        "-b:v", bitrate,
+        "-movflags", "+faststart",
+        "-c:a", "copy",
+        output_path
+    ]
+    
+    try:
+        subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        print(e.stderr.decode())
+    
+    return output_path
+
+def convert_video_resolutions_concurrent(input_file, resolutions, output_dir="output", max_workers=None):
+    if not os.path.exists(input_file):
+        return
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    encoder = "libx264"
+
+    futures = []
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for res in resolutions:
+            futures.append(executor.submit(process_single_resolution, input_file, res, output_dir, encoder))
+        
+        for future in as_completed(futures):
+            future.result() 
+
 
 def get_available_video_encoder():
     """
