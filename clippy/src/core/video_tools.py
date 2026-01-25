@@ -3,6 +3,36 @@ import tempfile
 import os
 from typing import Optional, Any
 from pathlib import Path
+import subprocess
+
+def get_available_video_encoder():
+    """
+    Returns the best available H.264 encoder on the system.
+    Priority:
+    1. libx264 (best quality)
+    2. libopenh264 (widely available)
+    3. h264_vaapi (hardware)
+    """
+    try:
+        result = subprocess.run(
+            ["ffmpeg", "-encoders"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        encoders = result.stdout
+
+        if "libx264" in encoders:
+            return "libx264"
+        if "libopenh264" in encoders:
+            return "libopenh264"
+        if "h264_vaapi" in encoders:
+            return "h264_vaapi"
+
+    except Exception:
+        pass
+
+    return None
 
 
 def merge_videos(video1_path: Optional[str] = None, video2_path: Optional[str] = None, output_path: Optional[str] = None) -> bool:
@@ -47,6 +77,59 @@ def merge_videos(video1_path: Optional[str] = None, video2_path: Optional[str] =
     finally:
         if list_file_path and os.path.exists(list_file_path):
             os.remove(list_file_path)
+
+def convert_video_resolutions(input_file, resolutions, output_dir="output"):
+    if not os.path.exists(input_file):
+        return
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    encoder = get_available_video_encoder()
+    if not encoder:
+        return
+
+
+    filename = os.path.splitext(os.path.basename(input_file))[0]
+    extension = ".mp4"
+
+    bitrate_map = {
+        "240": "400k",
+        "360": "600k",
+        "480": "1000k",
+        "720": "2500k",
+        "1080": "5000k",
+        "1440": "10000k",
+        "2160": "20000k"
+    }
+
+
+    for r in resolutions:
+        res_str = str(r).replace("p", "")
+        bitrate = bitrate_map.get(res_str, "1500k")
+        output_path = os.path.join(output_dir, f"{filename}_{res_str}p{extension}")
+
+        command = [
+            "ffmpeg",
+            "-i", input_file,
+            "-vf", f"scale=-2:{res_str}",
+            "-c:v", encoder,
+            "-b:v", bitrate,
+            "-c:a", "aac",
+            "-b:a", "128k",
+            "-y",
+            output_path
+        ]
+
+        if encoder == "libx264":
+            command.insert(command.index("-b:v"), "-preset")
+            command.insert(command.index("-b:v") + 1, "medium")
+
+        try:
+            subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        except subprocess.CalledProcessError as e:
+            pass
+
 
 def composite_image_over_video(
     video_path: str,

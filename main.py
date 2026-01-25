@@ -1,5 +1,3 @@
-from clippy import setup
-import os
-from dotenv import load_dotenv
-load_dotenv()
-setup(uri=os.getenv("MONGO_URI") or "")
+from clippy import convert_video_resolutions
+
+convert_video_resolutions("vid.mp4", ["240", "360"])
