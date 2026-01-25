@@ -1,3 +1,3 @@
-from clippy import get_audio_from_video
+from clippy import get_audio_from_video, merge_videos
 
-get_audio_from_video("7. Scaling Databases.mp4", "Audio1.mp3", start="00:01:00", end="00:03:00")
+merge_videos("7. Scaling Databases.mp4", "13. Caching at different levels.mp4", "MergedVideo.mp4")
