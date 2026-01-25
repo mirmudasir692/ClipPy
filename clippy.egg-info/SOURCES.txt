@@ -1,0 +1,17 @@
+LICENSE
+README.md
+pyproject.toml
+clippy/__init__.py
+clippy.egg-info/PKG-INFO
+clippy.egg-info/SOURCES.txt
+clippy.egg-info/dependency_links.txt
+clippy.egg-info/entry_points.txt
+clippy.egg-info/requires.txt
+clippy.egg-info/top_level.txt
+clippy/src/__init__.py
+clippy/src/cli/__init__.py
+clippy/src/cli/interface.py
+clippy/src/core/__init__.py
+clippy/src/core/audio_extractor.py
+clippy/src/utils/__init__.py
+clippy/src/utils/validation.py
