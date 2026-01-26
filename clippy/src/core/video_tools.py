@@ -5,6 +5,7 @@ from typing import Optional, Any
 from pathlib import Path
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import random
 
 bitrate_map = {
     240: "400k",
@@ -290,3 +291,67 @@ def composite_image_over_video(
         return False
     except Exception as e:
         return False
+def get_video_duration(video_path: str) -> float:
+    cmd = [
+        'ffprobe',
+        '-v', 'error',
+        '-show_entries', 'format=duration',
+        '-of', 'default=noprint_wrappers=1:nokey=1',
+        video_path
+    ]
+    try:
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        return float(result.stdout.strip())
+    except Exception as e:
+        return 0.0
+
+def get_video_thumbnail(
+    video_path: str, 
+    shot_at= None, 
+    output_path: str = "", 
+    resolution= None, 
+    quality: int = 2
+) -> str:
+    """
+    Extracts a thumbnail from a video.
+    
+    Args:
+        video_path (str): Path to the input video file.
+        shot_at (float, optional): Time in seconds to capture the frame. 
+        output_path (str, optional): Path to save the image.
+        resolution (str, optional): Desired resolution. Can be '320:240' or just '320' (keeps aspect ratio).
+        quality (int, optional): JPEG compression quality (1-31). Note: PNG ignores this.
+    """
+    
+    if not output_path:
+        base_name, _ = os.path.splitext(video_path)
+        output_path = f"{base_name}_thumb.jpg"
+
+    if shot_at is None:
+        duration = get_video_duration(video_path)
+        if duration > 0:
+            shot_at = random.uniform(1, duration)
+        else:
+            shot_at = 0
+    
+    cmd = [
+        'ffmpeg',
+        '-ss', str(shot_at),
+        '-i', video_path,
+        '-vframes', '1',
+        '-y',
+    ]
+    if resolution:
+        if ':' not in str(resolution):
+            resolution = f"{resolution}:-1"
+        cmd.extend(['-vf', f'scale={resolution}'])
+    safe_quality = max(1, min(31, quality))
+    cmd.extend(['-q:v', str(safe_quality)])
+
+    cmd.append(output_path)
+
+    try:
+        subprocess.run(cmd, check=True, capture_output=True)
+        return output_path
+    except subprocess.CalledProcessError as e:
+        return ""

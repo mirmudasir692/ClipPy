@@ -1,9 +1,9 @@
-from clippy import convert_video_resolutions
+from clippy import get_video_thumbnail
 
-convert_video_resolutions("13. Caching at different levels.mp4", ["240",
-"360",
-"480",
-"720",
-"1080",
-"1440,"
-"2160,"])
+get_video_thumbnail(
+    "7. Scaling Databases_overlay.mp4", 
+    shot_at=1, 
+    output_path="thumbnail.png", 
+    resolution="240:-1",
+    quality=10
+)
