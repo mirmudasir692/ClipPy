@@ -1,9 +1,8 @@
-from clippy import get_video_thumbnail
+from clippy.src.core.validation import validate_video
 
-get_video_thumbnail(
-    "7. Scaling Databases_overlay.mp4", 
-    shot_at=1, 
-    output_path="thumbnail.png", 
-    resolution="240:-1",
-    quality=10
-)
+is_valid, reason = validate_video("Audio1.mp3")
+print("reason : ", reason)
+if is_valid:
+    print("Good to go")
+else:
+    print(f"Error: {reason}")
