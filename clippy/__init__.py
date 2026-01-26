@@ -2,7 +2,7 @@
 
 from .src.core.audio_extractor import get_audio_from_video, extract_audio, get_default_output_path
 from .src.setup import setup
-from .src.core.video_tools import merge_videos, composite_image_over_video, convert_video_resolutions
+from .src.core.video_tools import merge_videos, composite_image_over_video, convert_video_resolutions, get_video_thumbnail
 from .src.utils.validation import validate_video_file, validate_ffmpeg
 
 __version__ = "1.0.0"
@@ -16,5 +16,6 @@ __all__ = [
     "merge_videos",
     "composite_image_over_video",
     "setup",
-    "convert_video_resolutions"
+    "convert_video_resolutions",
+    "get_video_thumbnail"
 ]
