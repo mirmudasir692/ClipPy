@@ -1,8 +1,11 @@
-from clippy.src.core.validation import validate_video
+from clippy import crop_video
 
-is_valid, reason = validate_video("Audio1.mp3")
-print("reason : ", reason)
-if is_valid:
-    print("Good to go")
-else:
-    print(f"Error: {reason}")
+
+crop_video(
+    video_path="vid.mp4",
+    x=100,
+    y=50,
+    width=400,
+    height=300,
+    output_path="test.mp4"
+)
