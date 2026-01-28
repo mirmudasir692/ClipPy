@@ -355,3 +355,44 @@ def get_video_thumbnail(
         return output_path
     except subprocess.CalledProcessError as e:
         return ""
+
+def crop_video(
+    video_path: str,
+    x: int = 0,
+    y: int = 0,
+    width: int = 640,
+    height: int = 480,
+    output_path: str = ""
+):
+    """
+    Crop the full video spatially.
+    """
+
+    if not video_path or not os.path.exists(video_path):
+        raise ValueError("Invalid video path")
+
+    if width <= 0 or height <= 0:
+        raise ValueError("Invalid crop dimensions")
+
+    encoder = get_available_video_encoder()
+    if not output_path:
+        output_path = f"cropped_{os.path.basename(video_path)}"
+
+    stream = (
+        ffmpeg
+        .input(video_path)
+        .crop(x=x, y=y, width=width, height=height)
+    )
+
+    if encoder:
+        stream = stream.output(
+            output_path,
+            vcodec=encoder,
+            acodec="aac"
+        )
+    else:
+        stream = stream.output(output_path)
+
+    stream.overwrite_output().run()
+
+    return output_path
