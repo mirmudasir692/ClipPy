@@ -6,7 +6,7 @@ from pathlib import Path
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import random
-from ..utils.ai_utils import VULNERABILITY_PROMPT, VIDEO_SUMMARIZATION_PROMPT
+from ..utils.ai_utils import VULNERABILITY_PROMPT, VIDEO_SUMMARIZATION_PROMPT, SUBTITLE_GENERATION_PROMPT
 import json
 
 bitrate_map = {
@@ -524,6 +524,44 @@ def generate_video_summary(message_tool, video_path, prompt=None):
     
     if not prompt:
         prompt = VIDEO_SUMMARIZATION_PROMPT
+
+    video = Path(video_path)
+    if not video.exists():
+        print("Video file not found")
+        return None
+
+    with open(video, "rb") as video_stream:
+        response = message_tool(video_stream, prompt)
+    
+    if isinstance(response, dict):
+        if 'output' in response and 'choices' in response['output']:
+            response_text = response['output']['choices'][0]['message']['content']
+        elif 'choices' in response:
+            response_text = response['choices'][0]['message']['content']
+        else:
+            print("API Response:", json.dumps(response, indent=2))
+            return response
+    else:
+        response_text = response
+    
+    if "```json" in response_text:
+        json_str = response_text.split("```json")[1].split("```")[0].strip()
+    elif "```" in response_text:
+        json_str = response_text.split("```")[1].split("```")[0].strip()
+    else:
+        json_str = response_text
+    
+    try:
+        result = json.loads(json_str)
+        return result
+    except json.JSONDecodeError:
+        return response_text
+def generate_subtitle(message_tool, video_path, prompt=None):
+    if not all([message_tool, video_path]):
+        return None
+    
+    if not prompt:
+        prompt = SUBTITLE_GENERATION_PROMPT
 
     video = Path(video_path)
     if not video.exists():
